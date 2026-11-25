@@ -302,7 +302,7 @@ function AdminDashboard() {
           <a href="/" className="mr-auto flex items-center gap-3 text-[#172d3a] no-underline">
             <span className="grid size-10 place-items-center rounded-xl bg-[#1769aa] text-2xl font-bold text-white">+</span>
             <span className="font-['Manrope'] text-base font-extrabold leading-tight">
-              Khar Clinic
+              Khar Piles  Clinic
               <small className="mt-1 block text-[9px] font-bold tracking-[1.5px] text-[#83919c]">ADMIN DASHBOARD</small>
             </span>
           </a>
@@ -385,7 +385,7 @@ function AdminDashboard() {
                     style={{ height: `${count ? Math.max(8, (count / maxDaily) * 100) : 4}%` }}
                   />
                   <span className="absolute top-full mt-2 h-3 text-[9px] text-[#8795a0]">{showDay ? day : ""}</span>
-                </div>
+                </div>  
               )
             })}
           </div>
@@ -431,8 +431,9 @@ function AdminDashboard() {
                   <tr>
                     <th className="px-6 py-3.5">PATIENT</th>
                     <th className="px-5 py-3.5">DATE &amp; TIME</th>
-                    <th className="px-5 py-3.5">MESSAGE</th>
                     <th className="px-5 py-3.5">STATUS</th>
+                    <th className="px-5 py-3.5">MESSAGE</th> 
+                    <th className="px-5 py-3.5">Confirm/Reject</th> 
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#edf1f4]">
@@ -448,12 +449,19 @@ function AdminDashboard() {
                           <p className="m-0 text-sm font-semibold text-[#354c5a]">{formatDate(a.date)}</p>
                           <p className="mt-1 mb-0 text-xs text-[#83919c]">{a.timeSlot || "Time not specified"}</p>
                         </td>
-                        <td className="max-w-[280px] px-5 py-4 text-xs leading-5 text-[#71818d]">{a.message || "—"}</td>
+                       
                         <td className="px-5 py-4">
                           <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-extrabold capitalize ring-1 ring-inset ${statusStyles[status] || statusStyles.pending}`}>
                             {status}
                           </span>
                         </td>
+                         <td className="max-w-[280px] px-5 py-4 text-xs leading-5 text-[#71818d]">{a.message || "—"}</td>
+                         <td className="">
+                          <div className="flex items-center gap-4 ">
+                            <button className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer " >Confirm </button>
+                            <button className="rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-bold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer ">Reject</button>
+                          </div>
+                         </td>
                       </tr>
                     )
                   })}
