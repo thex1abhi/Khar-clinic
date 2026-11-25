@@ -18,7 +18,7 @@ function Home() {
                         <div className="mt-10 flex gap-[38px] max-[800px]:flex-wrap max-[800px]:gap-5">
                             <span className="flex flex-col text-[12px] text-[#667582]"><b className="font-['Manrope'] text-[22px] font-extrabold text-[#12212d]">30+</b>Years experience</span>
                             <span className="flex flex-col text-[12px] text-[#667582]"><b className="font-['Manrope'] text-[22px] font-extrabold text-[#12212d]">5,000+</b>Patients served</span>
-                            <span className="flex flex-col text-[12px] text-[#667582]"><b className="font-['Manrope'] text-[22px] font-extrabold text-[#12212d]">6 Days</b>Open weekly</span>
+                            <span className="flex flex-col text-[12px] text-[#667582]"><b className="font-['Manrope'] text-[22px] font-extrabold text-[#12212d]">7 Days</b>Open weekly</span>
                         </div>
                     </div>
                     <aside className="flex min-h-[410px] flex-col items-center justify-center rounded-[26px] bg-[#e7f2f9] text-center shadow-[0_24px_60px_#1769aa1f] max-[800px]:min-h-[310px]">
