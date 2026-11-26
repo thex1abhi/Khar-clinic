@@ -34,7 +34,7 @@ export const getAppointments = async (req, res) => {
 export const updateAppointmentStatus = async (req, res) => {
     try {   
         const { status } = req.body
-        if (!["approved", "rejected", "cancelled"].includes(status)) {
+        if (!["confirmed", "rejected"].includes(status)) {
             return res.status(400).json({ message: "Invalid status" })
         }
         const appointment = await Appointment.findByIdAndUpdate(

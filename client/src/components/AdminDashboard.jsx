@@ -14,13 +14,11 @@ import {
 import { ServerUrl } from "../App"
 
 
-// const getError = (error, fallback) => error.response?.data?.message || fallback
-
 const toMonthKey = (date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
 
 const statusStyles = {
-  approved: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  confirmed: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   rejected: "bg-rose-50 text-rose-700 ring-rose-200",
   pending: "bg-amber-50 text-amber-700 ring-amber-200",
 }
@@ -150,6 +148,7 @@ function AdminDashboard() {
   const [isBusy, setIsBusy] = useState(false)
   const [month, setMonth] = useState(() => toMonthKey(new Date()))
   const [search, setSearch] = useState("")
+  const [updatingId, setUpdatingId] = useState(null)
 
   async function loadAppointments() {
     const { data } = await axios.get(`${ServerUrl}/api/appointments/get-appointments`, {
@@ -216,6 +215,26 @@ function AdminDashboard() {
     }
   }
 
+
+  const handleStatusUpdate = async (id, status) => {
+  
+    try {
+      setUpdatingId(id)
+      const { data } = await axios.put(`${ServerUrl}/api/appointments/${id}/status`, { status },
+        { withCredentials: true }
+      )
+      setAppointments((prev) =>
+        prev.map((a) => (a._id === id ? data : a))
+      )
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to update status")
+    } finally {
+      setUpdatingId(null)
+    }
+  }
+
+
   async function handleRefresh() {
     setIsBusy(true)
     try {
@@ -252,9 +271,9 @@ function AdminDashboard() {
   }, [monthAppointments, search])
 
   const counts = useMemo(() => {
-    const result = { total: monthAppointments.length, pending: 0, approved: 0, rejected: 0 }
+    const result = { total: monthAppointments.length, pending: 0, confirmed: 0, rejected: 0 }
     monthAppointments.forEach((a) => {
-      if (a.status === "approved") result.approved++
+      if (a.status === "confirmed") result.confirmed++
       else if (a.status === "rejected") result.rejected++
       else result.pending++
     })
@@ -281,7 +300,7 @@ function AdminDashboard() {
   const stats = [
     { label: "Appointments", value: counts.total, icon: <FaCalendarAlt />, color: "bg-sky-50 text-sky-700" },
     { label: "Awaiting review", value: counts.pending, icon: <FaClock />, color: "bg-amber-50 text-amber-700" },
-    { label: "Approved", value: counts.approved, icon: <FaCheckCircle />, color: "bg-emerald-50 text-emerald-700" },
+    { label: "Confirmed", value: counts.confirmed, icon: <FaCheckCircle />, color: "bg-emerald-50 text-emerald-700" },
     { label: "Rejected", value: counts.rejected, icon: <FaUserInjured />, color: "bg-rose-50 text-rose-700" },
   ]
 
@@ -385,7 +404,7 @@ function AdminDashboard() {
                     style={{ height: `${count ? Math.max(8, (count / maxDaily) * 100) : 4}%` }}
                   />
                   <span className="absolute top-full mt-2 h-3 text-[9px] text-[#8795a0]">{showDay ? day : ""}</span>
-                </div>  
+                </div>
               )
             })}
           </div>
@@ -429,11 +448,11 @@ function AdminDashboard() {
               <table className="w-full min-w-[690px] border-collapse text-left">
                 <thead className="bg-[#f8fafb] text-[10px] font-extrabold tracking-[1px] text-[#81909a]">
                   <tr>
-                    <th className="px-6 py-3.5">PATIENT</th>
-                    <th className="px-5 py-3.5">DATE &amp; TIME</th>
-                    <th className="px-5 py-3.5">STATUS</th>
-                    <th className="px-5 py-3.5">MESSAGE</th> 
-                    <th className="px-5 py-3.5">Confirm/Reject</th> 
+                    <th className="px-6 py-3.5">Patient</th>
+                    <th className="px-5 py-3.5">Date &amp; Time</th>
+                    <th className="px-5 py-3.5">Status</th>
+                    <th className="px-5 py-3.5">Message</th>
+                    <th className="px-5 py-3.5">Confirm/Reject</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#edf1f4]">
@@ -449,19 +468,25 @@ function AdminDashboard() {
                           <p className="m-0 text-sm font-semibold text-[#354c5a]">{formatDate(a.date)}</p>
                           <p className="mt-1 mb-0 text-xs text-[#83919c]">{a.timeSlot || "Time not specified"}</p>
                         </td>
-                       
+
                         <td className="px-5 py-4">
                           <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-extrabold capitalize ring-1 ring-inset ${statusStyles[status] || statusStyles.pending}`}>
                             {status}
                           </span>
                         </td>
-                         <td className="max-w-[280px] px-5 py-4 text-xs leading-5 text-[#71818d]">{a.message || "—"}</td>
-                         <td className="">
-                          <div className="flex items-center gap-4 ">
-                            <button className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer " >Confirm </button>
-                            <button className="rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-bold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer ">Reject</button>
+                        <td className="max-w-[280px] px-5 py-4 text-xs leading-5 text-[#71818d]">{a.message || "—"}</td>
+                        <td className="">
+                          <div className="flex items-center gap-1 ">
+                            <button
+                              onClick={() => handleStatusUpdate(a._id, "confirmed")}
+                              disabled={!a._id || updatingId === a._id}
+                              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer " >Confirm </button>
+                            <button
+                              onClick={() => handleStatusUpdate(a._id, "rejected")}
+                              disabled={!a._id || updatingId === a._id}
+                              className="rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-bold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer ">Reject</button>
                           </div>
-                         </td>
+                        </td>
                       </tr>
                     )
                   })}
@@ -472,7 +497,7 @@ function AdminDashboard() {
         </section>
 
         <p className="mt-5 mb-0 text-center text-[11px] text-[#9aa6af]">
-          Patient information is confidential. Sign out when you’re finished.
+          Patient information is confidential. Sign out when you're finished.
         </p>
       </div>
     </main>
